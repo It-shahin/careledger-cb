@@ -1,0 +1,32 @@
+name: App checks
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: careledger
+          POSTGRES_PASSWORD: careledger_local
+          POSTGRES_DB: careledger
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://careledger:careledger_local@localhost:5432/careledger
+      SEED_EMAIL: studio@careledger.local
+      SEED_PASSWORD: test-password-for-ci-only
+      WEB_ORIGIN: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+      - run: npm ci
+      - run: npm run setup
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:integration -w @careledger/api
+      - run: npm run build
+      - run: npm run build:demo

@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+}
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String
+  sessions Session[]
+}
+model Session {
+  id String @id
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+model Studio {
+  id String @id @default("studio")
+  name String @default("Your studio")
+  initials String @default("YS")
+  color String @default("#285647")
+}
+model Client {
+  id String @id @default(uuid())
+  name String
+  contact String
+  sites Site[]
+  createdAt DateTime @default(now())
+}
+model Site {
+  id String @id @default(uuid())
+  clientId String
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name String
+  url String
+  entries Entry[]
+  reports Report[]
+}
+model Entry {
+  id String @id @default(uuid())
+  siteId String
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  title String
+  details String
+  evidence String
+  kind String
+  happenedOn String
+  createdAt DateTime @default(now())
+  @@index([siteId, happenedOn])
+}
+model Report {
+  id String @id @default(uuid())
+  siteId String
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  period String
+  summary String
+  nextSteps String
+  status String @default("draft")
+  snapshot Json
+  createdAt DateTime @default(now())
+  @@index([siteId, period])
+}

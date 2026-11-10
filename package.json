@@ -1,0 +1,30 @@
+{
+  "name": "careledger",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,api \"npm run dev -w @careledger/web\" \"npm run dev -w @careledger/api\"",
+    "build": "npm run build -w @careledger/shared && npm run db:generate && npm run build -w @careledger/api && npm run build -w @careledger/web",
+    "build:demo": "npm run build -w @careledger/shared && npm run build:demo -w @careledger/web",
+    "setup": "npm run build -w @careledger/shared && npm run db:generate && npm run db:migrate && npm run db:seed",
+    "typecheck": "npm run build -w @careledger/shared && npm run typecheck --workspaces --if-present",
+    "db:generate": "npm run db:generate -w @careledger/api",
+    "db:migrate": "npm run db:migrate -w @careledger/api",
+    "db:seed": "npm run db:seed -w @careledger/api",
+    "test": "npm run test -w @careledger/api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "concurrently": "^9.2.1",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=24.14 <25"
+  }
+}
